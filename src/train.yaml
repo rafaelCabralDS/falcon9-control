@@ -1,0 +1,37 @@
+model:  ~ # Initial DNN weights
+
+# Policy (Default = 2 layers 64 nodes each fully connected)
+policy: MlpPolicy
+layers: 2
+nodes: 64
+activation: tanh # (Default=tanh)
+
+seed: ~ # Disable for training!
+device: cpu
+
+save_dir: ../results
+verbose: 1 # 1 = Active | 0  = Disable
+
+max_iter: 5000 # Max number of updates in the policy (Rollouts + Policy updates)(Training stops after)
+episodes: 100000 # Max number of collected episodes (Training stops after)
+save_freq: 50 # Save the model every i iterations
+eval_freq: 50 # Eval the model ever i iterations
+learning_starts: 10 # The number of steps collected before updating the policy for the first time
+gamma: 0.999 # Discount rate for rewards (Default = 0.99)
+lr_end: 0.0003 # Learning Rate (Default = 3e-4)
+lr_start: 0.0003 #
+tau: ~ # Transfer rate
+buffer_size: ~ #5000 # 200000 # The number of steps to keep in memory
+batch_size: 20000 # 256 # 2000 # Minibatch size (Default = 256)
+n_epochs: ~ # Number of epoch when optimizing the surrogate loss (Default=10)
+
+use_sde: false
+normalize_advantage: true # Normalize observations before feeding to the NN
+
+# For Off Policy algos only (Ex: SAC)
+action_noise:
+  sigma: 0.3
+  mean: 0
+obs_noise: true # Not implemented yet
+
+

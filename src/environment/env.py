@@ -2,13 +2,13 @@ from typing import Optional, Tuple, List, Any, Union
 import numpy as np
 from gymnasium import Env, spaces
 from gymnasium.core import RenderFrame, ActType
-from utils.yaml_utils import load_config
-from painter import TrackPainter
-from rewards import Reward
-from world import World
+from common.yaml_helper import load_config
+from .utils import noisy
+from .painter import TrackPainter
+from .rewards import Reward
+from .world import World
 from easydict import EasyDict
-from constants import *
-from utils import noisy
+from .constants import *
 
 class BoosterEnv(Env):
     """
@@ -31,7 +31,7 @@ class BoosterEnv(Env):
         8. Previous nozzle angle [rad].
     """
 
-    def __init__(self, config: Union[EasyDict, str], render: Optional[bool] = False):
+    def __init__(self, config: Union[EasyDict, str, dict], render: Optional[bool] = False):
         super().__init__()
 
         self._loadEnvConfig(config)
@@ -86,7 +86,7 @@ class BoosterEnv(Env):
             initial_state=self.initial_state,
             wind_power=self.config.wind,
             turbulence=self.config.turbulence,
-            use_drag=self.config.drag,
+            drag=self.config.drag,
         )
 
         # Set rewards helper class
@@ -194,7 +194,7 @@ class BoosterEnv(Env):
         """
         # Time Limit
         step = self.world.state.t / (dt * K_time)
-        if step > self.config.max_steps:
+        if self.config.max_steps is not None and step > self.config.max_steps:
             return False, "Time Limit"
 
         # If the booster touched the ground, check if the conditions configure a successfully landing

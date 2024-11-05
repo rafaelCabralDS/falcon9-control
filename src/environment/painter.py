@@ -27,6 +27,7 @@ class TrackPainter:
             if self.screen is None:
                 pygame.init()
                 pygame.display.init()
+                pygame.display.set_caption('Falcon 9 Landing')
                 self.screen = pygame.display.set_mode((self.CAMERA_W, self.CAMERA_H))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
@@ -157,7 +158,7 @@ class TrackPainter:
 if __name__ == "__main__":
     painter = TrackPainter(render_mode="human")
     from world import *
-    from util_methods import load_config
+    from utils import load_config
 
     config = EasyDict()
     config.update(load_config(f"./env.yaml"))

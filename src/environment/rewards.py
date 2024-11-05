@@ -17,7 +17,7 @@ class Reward:
     ensure the agent's actions lead to optimal performance.
     """
 
-    def __init__(self, env_config: EasyDict):
+    def __init__(self, env_config: EasyDict, verbose=0):
         """
         Initializes the Reward class with environment configuration.
 
@@ -27,6 +27,7 @@ class Reward:
         self.previous_shaping = None
         self.current = None
         self.previous = None
+        self._verbose = verbose
 
         self._reward_fn = None
         self._version = env_config.reward_version
@@ -57,7 +58,7 @@ class Reward:
         """
         try:
             exec(f'self._reward_fn = self._{self._version}')
-            logger.info(f"Reward function initialized: v{self._version}")
+            if self._verbose: logger.info(f"Reward function initialized: {self._version}")
         except Exception as e:
             logger.error(f"Failed to initialize reward function: {str(e)}")
             raise Exception("Reward version not implemented")
@@ -285,4 +286,4 @@ class Reward:
         self.previous_shaping = None
         self.X0 = X0
         self.V0 = V0
-        logger.info("Reward system reset with new initial conditions.")
+        if self._verbose: logger.info("Reward system reset with new initial conditions.")

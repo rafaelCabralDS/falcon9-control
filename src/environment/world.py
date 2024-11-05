@@ -1,7 +1,7 @@
 from typing import Tuple
 from Box2D import *
-from constants import *
-from utils import *
+from .constants import *
+from .utils import *
 from easydict import EasyDict
 from gymnasium.utils import seeding, EzPickle
 
@@ -57,7 +57,7 @@ class World(EzPickle):
         """Calculate the distance to the target in the x-y plane."""
         booster_cg = (self.state.x, self.state.y)
         target = (LAUNCH_PAD_CENTER, LAUNCH_PAD_HEIGHT + GROUND_HEIGHT)
-        return points_distance((self.state.x, self.state.y))[0]
+        return points_distance(booster_cg, target)[0]
 
     def step(self, action: np.ndarray) -> EasyDict:
         """
@@ -84,8 +84,7 @@ class World(EzPickle):
             self._applyTurbulence()
             self._applyWind()
 
-        if self._useDrag:
-            self._applyFinsDamping()
+        self._applyFinsDamping()
 
         # Apply damping and update particles
         self._updateParticles()
@@ -108,6 +107,7 @@ class World(EzPickle):
         self.state.w = self.fuselage.angularVelocity * K_w
         self.state.legs_on_contact = sum(int(leg.ground_contact) for leg in self.legs)
         self.contact = self.state.legs_on_contact > 0
+
 
     def _setInitialState(self, state: EasyDict):
         """
@@ -139,6 +139,7 @@ class World(EzPickle):
         self.set_state()
         self._applyWind()
         self._applyTurbulence()
+        self._applyFinsDamping()
 
     # ------------------------------------- CONTROL ------------------------------------- #
 
@@ -173,10 +174,10 @@ class World(EzPickle):
         # Calculate fuel consumption
         consumed_fuel = N_ENGINES * (m_dot(
             F=thrust / N_ENGINES,
-            Ve=M1D_Ve,
-            Pe=M1D_Pe,
-            _Pa=Pa,
-            mixRatio=M1D_PHI,
+            Ve=M1D_VELOCITY_EXHAUST,
+            Pe=M1D_EXIT_PRESSURE,
+            _Pa=ATM_PRESSURE,
+            mixRatio=M1D_OXIDIZER_FUEL_RATIO,
             Ae=NOZZLE_AREA)[0] * dt * K_time)
 
         self.fuselage.mass -= consumed_fuel
@@ -209,6 +210,7 @@ class World(EzPickle):
         wind_mag = np.tanh(np.sin(0.02 * self._windStep) + np.sin(np.pi * 0.01 * self._windStep)) * self._windPower
         self._windStep += 1
         self.fuselage.ApplyForceToCenter((wind_mag, 0.0), True)
+        self.state.wind = wind_mag
 
     def _applyTurbulence(self):
         """Simulate turbulence with rapid, stochastic force fluctuations."""
@@ -216,11 +218,13 @@ class World(EzPickle):
             np.sin(0.1 * self._turbulenceStep) + np.cos(np.pi * 0.3 * self._turbulenceStep)) * self._turbulencePower
         self._turbulenceStep += 1
         self.fuselage.ApplyForceToCenter((turbulence_mag, 0.0), True)
+        self.state.turbulence = turbulence_mag
 
     def _applyFinsDamping(self):
         """Apply rotational damping using fins."""
         damping_torque = -self._drag * self.fuselage.angularVelocity
         self.fuselage.ApplyTorque(damping_torque, True)
+        self.state.drag = damping_torque
 
     # --------------------------------------------- BUILD ------------------------------- #
     def _createTerrain(self) -> b2Body:
@@ -431,3 +435,24 @@ class World(EzPickle):
         self.world.contactListener = None
         self.world = None
         self.booster = None
+
+# Default implementation
+class ContactDetector(b2ContactListener):
+    def __init__(self, env):
+        b2ContactListener.__init__(self)
+        self.env = env
+
+    def BeginContact(self, contact):
+        if (
+                self.env.fuselage == contact.fixtureA.body
+                or self.env.fuselage == contact.fixtureB.body
+        ):
+            self.env.game_over = True
+        for i in range(2):
+            if self.env.legs[i] in [contact.fixtureA.body, contact.fixtureB.body]:
+                self.env.legs[i].ground_contact = True
+
+    def EndContact(self, contact):
+        for i in range(2):
+            if self.env.legs[i] in [contact.fixtureA.body, contact.fixtureB.body]:
+                self.env.legs[i].ground_contact = False

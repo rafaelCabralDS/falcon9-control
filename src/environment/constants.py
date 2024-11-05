@@ -46,7 +46,7 @@ MAX_GIMBAL_ANGLE_RAD = np.deg2rad(MAX_GIMBAL_ANGLE)  # Convert to radians
 MAX_GIMBAL_VELOCITY = 10            # degrees/s, max gimbal angle change rate
 
 # Merlin-1D Main Engine Performance Constants
-M1D_OXIDIZER_FUEL_RATIO = 2.38      # LOX/RP-1 mixture ratio
+M1D_OXIDIZER_FUEL_RATIO = 2.38      # LOX/RP-1 mixture ratio (phi)
 N_ENGINES = 3                       # Number of engines
 M1D_MAX_THRUST = 845000             # N, max thrust per engine
 M1D_THRESHOLD = 0.57                # Min throttle threshold

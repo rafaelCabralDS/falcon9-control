@@ -1,4 +1,4 @@
-# Booster Environment README
+# Booster Environment 
 
 ## Overview
 
@@ -6,7 +6,7 @@ The **Booster Environment** is a simulation framework designed for reinforcement
 
 ## Installation
 
-To use the Booster Environment, ensure you have the necessary dependencies installed. This typically includes libraries such as `gymnasium`, `numpy`, and any other specific libraries required by your project.
+To use the Booster Environment, ensure you have the necessary dependencies installed. 
 
 ```bash
 pip install -r requirements.txt
@@ -19,44 +19,50 @@ pip install -r requirements.txt
 The action space consists of three continuous actions that the agent can manipulate:
 
 1. **Main Engine Throttle**: 
-   - Range: \([-1, 0]\) (off) and \([0, +1]\) (throttle from 57% to 100% power).
+   - [-1, 0] (off) 
+   - [0, +1] (throttle from 57% to 100% power).
 2. **Side Engine Throttle**: 
-   - Range: \([-1, -0.5]\) (left), \([-0.5, 0.5]\) (off), \([0.5, +1]\) (right).
-3. **Delta Gimbal Angle**: 
-   - Range: \([-1, 1]\).
+   - [-1, -0.5]  (left),
+   - [-0.5, 0.5] (off)
+   - [0.5, +1]   (right).
+3. **Delta Gimbal Angle** [-1, 1].
 
 ### Observation Space
 
 The observation space provides essential information about the state of the booster. It consists of the following features:
 
-1. **X relative position to the launchpad**: \([-X_{\text{LIM}}, +X_{\text{LIM}}]\) in meters.
-2. **Y relative position to the launchpad**: \([GROUND\_HEIGHT, +Y_{\text{LIM}}]\) in meters.
-3. **Velocity in the X direction**: \([-inf, +inf]\) in m/s.
-4. **Velocity in the Y direction**: \([-inf, +inf]\) in m/s.
-5. **Pitch angle**: in radians.
-6. **Angular velocity (w)**: in radians per second.
-7. **Fuel / Initial Fuel**: Range \([0, 1]\).
-8. **Previous main engine power**: Range \([0, 1]\).
-9. **Previous nozzle angle**: in radians.
+1. **X relative position to the launchpad** [m]
+2. **Y relative position to the launchpad** [m]
+3. **Velocity in the X direction (Vx)** [m/s]
+4. **Velocity in the Y direction (Vy)** [m/s]
+5. **Pitch angle (alpha)** [rad].
+6. **Angular velocity (w)** [rad/s].
+7. **Fuel ratio (Fuel / Initial Fuel)**.
+8. **Previous main engine power**  [0, 1].
+9. **Previous nozzle angle** [rad].
 
 ### Stability Criteria
 
 The booster must meet certain stability criteria during the simulation to ensure safe flight:
 
-1. **X Position Limit**: \(-X_{\text{LIMIT}} < XX < X_{\text{LIMIT}}\).
-2. **Y Position Limit**: \(YY > Y_{\text{LIMIT}}\).
-3. **Tilt Angle**: \(|\text{ALPHA}| < 60^{\circ}\).
-4. **Angular Velocity Limit**: \(|\text{w}| < \text{ANGULAR\_VELOCITY\_LIMIT}\).
-5. **Max Steps**: The number of steps taken must not exceed \(MAX\_STEPS\).
+1. **X Position Limit**.
+2. **Y Position Limit**.
+3. **Tilt Angle**.
+4. **Angular Velocity Limit**.
+5. **Max Steps**.
+
+The limits are described in **constant.py**.
 
 ### Termination Criteria
 
 The simulation terminates when any of the following conditions are met:
 
-1. **Landing Velocity**: \(Vy > Y_{\text{LAND\_VELOCITY\_LIMIT}}\).
-2. **Horizontal Velocity Limit**: \(Vx > X_{\text{LAND\_VELOCITY\_LIMIT}}\).
-3. **Landing Tilt Angle**: \(|\text{ALPHA}| > 23^{\circ}\).
-4. **Launch Pad Radius**: \(-LAUNCH\_PAD\_RADIUS \leq XX \leq LAUNCH\_PAD\_RADIUS\).
+1. **Landing Velocity**
+2. **Horizontal Velocity Limit**
+3. **Landing Tilt Angle**
+4. **Launch Pad Radius**
+
+The criteria are described in **constant.py**.
 
 ## Configuration File
 
@@ -81,7 +87,7 @@ initial_condition:
 # --------------------------------- REWARD --------------------- #
 
 # Defines the reward system used to evaluate agent performance:
-reward_version: v7 # Reward function version
+reward_version: v5 # Reward function version
 
 # Reward function constants to fine tune
 reward:
@@ -112,8 +118,8 @@ In your configuration file (`env.yaml`), you can specify the version of the rewa
 To create and interact with the Booster Environment, follow this example:
 
 ```python
-import gym
-from booster_env import BoosterEnv
+import gymnasium as gym
+from env import BoosterEnv
 
 # Initialize the environment with the configuration file
 env = BoosterEnv(config="path/to/env.yaml")

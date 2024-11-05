@@ -1,0 +1,33 @@
+# Initial conditions for the crs-11 mission
+drag: 10_000
+turbulence: 0.0
+wind: 0.0
+max_steps: 2000
+render: false
+
+initial_condition:
+  Vx: -7 +- 0
+  Vy: -155 +- 0
+  alpha: -0.045 +- 0.0
+  fuel_ratio: 0.15 +- 0
+  w: 0 +- 0.0
+  x: 2515 +- 0
+  y: 1050 +- 0
+
+reward_version: v7
+reward:
+  Vx: 250
+  Vy: 750
+  angle: 1250
+  engine_startup: 3
+  fuel_penalization: 0
+  main_engine_burn: 0
+  position: 1250
+  side_engine_burn: 0.3
+  gimbal: 0.3
+  termination_reward: 100
+  time_penalization: 0
+  trajectory_penalization: 1
+  velocity: 1500
+  w: 0
+
